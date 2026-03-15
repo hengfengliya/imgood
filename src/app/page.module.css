@@ -1,32 +1,62 @@
 .page {
-  padding: 48px 32px 72px;
-  max-width: 1280px;
+  padding: 24px 32px 88px;
+  max-width: 1320px;
   margin: 0 auto;
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
-  gap: 24px;
-  align-items: stretch;
-}
-
-.heroCopy,
-.heroPanel,
-.card {
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 0 28px;
   position: relative;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(35, 22, 54, 0.78), rgba(15, 10, 24, 0.92));
-  box-shadow: var(--shadow);
 }
 
-.heroCopy {
-  padding: 40px;
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
 }
 
-.eyebrow,
+.hero::before {
+  inset: 6% 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+}
+
+.hero::after {
+  inset: auto 0 4%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+}
+
+.hero h1 {
+  margin: 0;
+  max-width: 8.5ch;
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(72px, 14vw, 168px);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  font-weight: 600;
+  text-wrap: balance;
+  text-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+}
+
+.library {
+  display: grid;
+  gap: 28px;
+}
+
+.sectionHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 24px;
+  align-items: end;
+}
+
 .sectionLabel,
 .category,
 .count,
@@ -37,65 +67,20 @@
   color: var(--muted);
 }
 
-.heroCopy h1 {
-  margin: 20px 0 18px;
-  max-width: 10ch;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(52px, 8vw, 86px);
-  line-height: 0.92;
-  font-weight: 600;
-}
-
-.description {
-  max-width: 66ch;
-  font-size: 17px;
-  line-height: 1.8;
-  color: #dccdea;
-}
-
-.heroPanel {
-  padding: 28px;
-  display: grid;
-  gap: 18px;
-}
-
-.heroPanel > div {
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.heroPanel > div:last-child {
-  border-bottom: none;
-}
-
-.heroPanel span,
-.heroPanel strong {
-  display: block;
-}
-
-.heroPanel strong {
-  margin-top: 10px;
-  font-size: 24px;
-}
-
-.sectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 24px;
-  margin: 48px 0 24px;
-}
-
 .sectionHeader h2 {
   margin: 10px 0 0;
   font-family: "Cormorant Garamond", serif;
-  font-size: 44px;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 0.98;
+  font-weight: 600;
 }
 
 .sectionText {
-  max-width: 46ch;
-  color: var(--muted);
-  line-height: 1.7;
+  max-width: 38ch;
+  margin: 0;
+  color: #dccdea;
+  line-height: 1.8;
+  justify-self: end;
 }
 
 .grid {
@@ -105,11 +90,17 @@
 }
 
 .card {
+  position: relative;
+  overflow: hidden;
   min-height: 360px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(35, 22, 54, 0.78), rgba(15, 10, 24, 0.92));
+  box-shadow: var(--shadow);
 }
 
 .cardGlow {
@@ -182,23 +173,25 @@
 
 @media (max-width: 900px) {
   .page {
-    padding: 28px 18px 56px;
+    padding: 18px 18px 56px;
   }
 
   .hero {
-    grid-template-columns: 1fr;
+    min-height: 54vh;
+    padding: 42px 0 20px;
   }
 
-  .heroCopy {
-    padding: 30px 24px;
-  }
-
-  .heroCopy h1 {
-    max-width: none;
+  .hero h1 {
+    max-width: 9ch;
+    font-size: clamp(56px, 18vw, 96px);
   }
 
   .sectionHeader {
-    flex-direction: column;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .sectionText {
+    justify-self: start;
   }
 }
