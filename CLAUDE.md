@@ -74,6 +74,7 @@ workspace/agents/
 | `audience` | ✅ | 目标用户数组 |
 | `tags` | ✅ | 标签数组，显示在卡片底部 |
 | `accent` | ✅ | 统一填 `"#5dba8c"`（全局玉色） |
+| `updatedAt` | — | 格式 `"YYYY-MM-DD"`，首页按此字段降序排列（最新在前）；缺失时排到最末 |
 
 ### 第三步：推送
 

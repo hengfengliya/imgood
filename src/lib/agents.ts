@@ -111,7 +111,12 @@ export async function getAgentsWithDocuments() {
     }),
   );
 
-  return agents.sort((a, b) => a.title.localeCompare(b.title));
+  return agents.sort((a, b) => {
+    const da = a.updatedAt ?? "";
+    const db = b.updatedAt ?? "";
+    if (db !== da) return db.localeCompare(da); // 最新在前
+    return a.title.localeCompare(b.title);       // 同日期按标题字母序
+  });
 }
 
 export async function getAgents() {
@@ -133,7 +138,12 @@ export async function getAgents() {
     }),
   );
 
-  return agents.sort((a, b) => a.title.localeCompare(b.title));
+  return agents.sort((a, b) => {
+    const da = a.updatedAt ?? "";
+    const db = b.updatedAt ?? "";
+    if (db !== da) return db.localeCompare(da); // 最新在前
+    return a.title.localeCompare(b.title);       // 同日期按标题字母序
+  });
 }
 
 export async function getAgentBySlug(slug: string): Promise<AgentDetail | null> {

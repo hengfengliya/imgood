@@ -21,6 +21,7 @@ export type AgentMeta = {
   audience: string[];
   tags: string[];
   accent: string;
+  updatedAt?: string; // YYYY-MM-DD，用于排序，缺失时排到最后
 };
 
 export type AgentDocument = {
