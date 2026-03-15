@@ -92,17 +92,18 @@ async function readDocument(agentDir: string, fileName: string): Promise<AgentDo
 }
 
 export async function getAgentsWithDocuments() {
-  const slugs = await listDirectories(AGENTS_DIR);
+  const dirs = await listDirectories(AGENTS_DIR);
 
   const agents = await Promise.all(
-    slugs.map(async (slug) => {
-      const agentDir = path.join(AGENTS_DIR, slug);
+    dirs.map(async (dir) => {
+      const agentDir = path.join(AGENTS_DIR, dir);
       const meta = await readMeta(agentDir);
       const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
       const completedCount = documents.filter((d) => d.exists).length;
 
       return {
         ...meta,
+        slug: dir.toLowerCase(),
         documents,
         completedCount,
         totalCount: OFFICIAL_WORKSPACE_FILES.length,
@@ -114,17 +115,18 @@ export async function getAgentsWithDocuments() {
 }
 
 export async function getAgents() {
-  const slugs = await listDirectories(AGENTS_DIR);
+  const dirs = await listDirectories(AGENTS_DIR);
 
   const agents = await Promise.all(
-    slugs.map(async (slug) => {
-      const agentDir = path.join(AGENTS_DIR, slug);
+    dirs.map(async (dir) => {
+      const agentDir = path.join(AGENTS_DIR, dir);
       const meta = await readMeta(agentDir);
       const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
       const completedCount = documents.filter((item) => item.exists).length;
 
       return {
         ...meta,
+        slug: dir.toLowerCase(),
         completedCount,
         totalCount: OFFICIAL_WORKSPACE_FILES.length,
       };
@@ -135,16 +137,18 @@ export async function getAgents() {
 }
 
 export async function getAgentBySlug(slug: string): Promise<AgentDetail | null> {
-  const agentDir = path.join(AGENTS_DIR, slug);
-  if (!(await fileExists(agentDir))) {
-    return null;
-  }
+  // Case-insensitive directory lookup so "Elowen" folder works for /agents/elowen
+  const dirs = await listDirectories(AGENTS_DIR);
+  const matchedDir = dirs.find((d) => d.toLowerCase() === slug.toLowerCase());
+  if (!matchedDir) return null;
 
+  const agentDir = path.join(AGENTS_DIR, matchedDir);
   const meta = await readMeta(agentDir);
   const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
 
   return {
     ...meta,
+    slug: matchedDir.toLowerCase(),
     documents,
   };
 }
