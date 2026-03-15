@@ -91,6 +91,28 @@ async function readDocument(agentDir: string, fileName: string): Promise<AgentDo
   };
 }
 
+export async function getAgentsWithDocuments() {
+  const slugs = await listDirectories(AGENTS_DIR);
+
+  const agents = await Promise.all(
+    slugs.map(async (slug) => {
+      const agentDir = path.join(AGENTS_DIR, slug);
+      const meta = await readMeta(agentDir);
+      const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
+      const completedCount = documents.filter((d) => d.exists).length;
+
+      return {
+        ...meta,
+        documents,
+        completedCount,
+        totalCount: OFFICIAL_WORKSPACE_FILES.length,
+      };
+    }),
+  );
+
+  return agents.sort((a, b) => a.title.localeCompare(b.title));
+}
+
 export async function getAgents() {
   const slugs = await listDirectories(AGENTS_DIR);
 

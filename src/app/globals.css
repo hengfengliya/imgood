@@ -1,18 +1,32 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
-
 :root {
-  --bg: #0f0b16;
-  --bg-soft: #171125;
-  --panel: rgba(31, 20, 49, 0.7);
-  --panel-strong: rgba(23, 14, 38, 0.9);
-  --line: rgba(255, 255, 255, 0.12);
-  --text: #f7eefc;
-  --muted: #beaed0;
-  --accent: #d27aff;
-  --accent-strong: #ff95d2;
-  --success: #8cf6c4;
-  --warning: #ffd57f;
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  /* ── Surfaces ── */
+  --bg:           #060c09;
+  --bg-soft:      #0b1610;
+  --panel:        rgba(10, 22, 14, 0.82);
+  --panel-strong: rgba(7, 15, 10, 0.94);
+
+  /* ── Lines ── */
+  --line:         rgba(93, 186, 140, 0.1);
+  --line-soft:    rgba(255, 255, 255, 0.06);
+
+  /* ── Typography ── */
+  --text:         #e6e1d0;
+  --text-soft:    #c8c2ae;
+  --muted:        #7a9882;
+
+  /* ── Accent — Jade ── */
+  --accent:       #5dba8c;
+  --accent-light: #8ed4a8;
+  --accent-dim:   rgba(93, 186, 140, 0.18);
+  --accent-glow:  rgba(93, 186, 140, 0.08);
+
+  /* ── Misc ── */
+  --success:      #8cf6c4;
+  --shadow:       0 24px 64px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  /* ── Fonts ── */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui:      "Syne", system-ui, sans-serif;
 }
 
 * {
@@ -20,18 +34,34 @@
 }
 
 html {
-  background: radial-gradient(circle at top, rgba(210, 122, 255, 0.18), transparent 30%), var(--bg);
+  background: var(--bg);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
-  font-family: "Manrope", sans-serif;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.6;
   background:
-    radial-gradient(circle at 20% 10%, rgba(255, 149, 210, 0.12), transparent 20%),
-    radial-gradient(circle at 80% 0%, rgba(210, 122, 255, 0.12), transparent 25%),
-    linear-gradient(180deg, #120c1d 0%, #0c0913 100%);
+    radial-gradient(ellipse 80% 40% at 15% -5%, rgba(35, 90, 55, 0.28), transparent),
+    radial-gradient(ellipse 60% 30% at 85% 2%, rgba(93, 186, 140, 0.1), transparent),
+    linear-gradient(180deg, #081209 0%, #050b07 60%, #040904 100%);
+  background-attachment: fixed;
+}
+
+/* ── Grain overlay ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
 }
 
 a {
@@ -41,12 +71,12 @@ a {
 
 button,
 a {
-  transition: transform 180ms ease, opacity 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
 }
 
 button:hover,
 a:hover {
-  transform: translateY(-1px);
+  opacity: 1;
 }
 
 pre,

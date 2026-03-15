@@ -1,0 +1,423 @@
+/* ══════════════════════════════════════
+   Root
+══════════════════════════════════════ */
+.root {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════
+   Tab Bar
+══════════════════════════════════════ */
+.tabBar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 10, 7, 0.98) 70%,
+    rgba(5, 10, 7, 0)
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.tabList {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0;
+}
+
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px 17px;
+  background: none;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  margin-bottom: -1px;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.tab:hover {
+  color: var(--text-soft);
+}
+
+.activeTab {
+  color: var(--accent-light);
+  border-bottom-color: var(--accent);
+}
+
+.tabCount {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.activeTab .tabCount {
+  background: var(--accent-dim);
+  color: var(--accent-light);
+}
+
+/* ══════════════════════════════════════
+   Content Area
+══════════════════════════════════════ */
+.contentArea {
+  padding-top: 32px;
+}
+
+/* ══════════════════════════════════════
+   Agent Card Grid
+══════════════════════════════════════ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+  padding-top: 28px;
+}
+
+/* ── Agent Card ── */
+.agentCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--line-soft);
+  background: var(--panel);
+  transition: border-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.agentCard:hover {
+  border-color: rgba(93, 186, 140, 0.22);
+  transform: translateY(-3px);
+  box-shadow:
+    0 20px 56px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(93, 186, 140, 0.1);
+}
+
+.cardGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 220ms ease;
+}
+
+.agentCard:hover .cardGlow {
+  opacity: 1;
+}
+
+.cardInner {
+  position: relative;
+  z-index: 1;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 300px;
+}
+
+/* Card top row */
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.progress {
+  flex: 1;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+  opacity: 0.5;
+  transition: opacity 220ms ease;
+}
+
+.agentCard:hover .progressFill {
+  opacity: 0.9;
+}
+
+.count {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* Card body */
+.cardBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agentTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.agentSubtitle {
+  margin: 2px 0 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-light);
+  opacity: 0.8;
+  letter-spacing: 0.02em;
+}
+
+.agentDesc {
+  margin: 10px 0 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card bottom */
+.cardBottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 99px;
+  border: 1px solid rgba(93, 186, 140, 0.14);
+  color: rgba(93, 186, 140, 0.55);
+  background: rgba(93, 186, 140, 0.04);
+  letter-spacing: 0.04em;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.agentCard:hover .tag {
+  border-color: rgba(93, 186, 140, 0.24);
+  color: rgba(142, 212, 168, 0.75);
+}
+
+.cta {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+  transition: color 180ms ease;
+}
+
+.agentCard:hover .cta {
+  color: var(--accent);
+}
+
+/* ══════════════════════════════════════
+   Document Tab
+══════════════════════════════════════ */
+.docTabDesc {
+  margin: 0 0 24px;
+  padding-top: 36px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 54ch;
+  letter-spacing: 0.01em;
+}
+
+.docGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+}
+
+/* ── Document Card ── */
+.docCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 22px 20px 26px;
+  border-radius: 14px;
+  border: 1px solid var(--line-soft);
+  background: var(--panel);
+  overflow: hidden;
+  transition: border-color 220ms ease, transform 220ms ease;
+}
+
+.docCard:hover {
+  border-color: rgba(93, 186, 140, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Left accent bar */
+.docCardAccent {
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 2.5px;
+  border-radius: 0 2px 2px 0;
+  background: var(--agent-accent, var(--accent));
+  opacity: 0.55;
+  transition: opacity 220ms ease;
+}
+
+.docCard:hover .docCardAccent {
+  opacity: 1;
+}
+
+/* Subtle top glow using accent */
+.docCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 40% at 50% -10%,
+    color-mix(in srgb, var(--agent-accent, var(--accent)) 8%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.docCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.docAgentName {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.docBadge {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  flex-shrink: 0;
+  border: 1px solid rgba(93, 186, 140, 0.15);
+}
+
+.docPreview {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--muted);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.docCta {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(122, 152, 130, 0.5);
+  transition: color 180ms ease;
+}
+
+.docCard:hover .docCta {
+  color: var(--accent);
+}
+
+/* ══════════════════════════════════════
+   Responsive
+══════════════════════════════════════ */
+@media (max-width: 900px) {
+  .grid,
+  .docGrid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .grid,
+  .docGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tab {
+    padding: 13px 14px 14px;
+    font-size: 10px;
+  }
+}

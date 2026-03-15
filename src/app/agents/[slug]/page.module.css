@@ -1,17 +1,31 @@
 .page {
-  max-width: 1440px;
+  position: relative;
+  z-index: 1;
+  max-width: 1480px;
   margin: 0 auto;
-  padding: 32px 24px 72px;
+  padding: 28px 24px 80px;
 }
 
 .backLink {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.backLink:hover {
+  color: var(--text);
+  border-color: rgba(93, 186, 140, 0.2);
+  background: rgba(93, 186, 140, 0.04);
+  transform: none;
 }
