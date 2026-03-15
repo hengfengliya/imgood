@@ -1,0 +1,204 @@
+.page {
+  padding: 48px 32px 72px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.heroCopy,
+.heroPanel,
+.card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(35, 22, 54, 0.78), rgba(15, 10, 24, 0.92));
+  box-shadow: var(--shadow);
+}
+
+.heroCopy {
+  padding: 40px;
+}
+
+.eyebrow,
+.sectionLabel,
+.category,
+.count,
+.footer span {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.heroCopy h1 {
+  margin: 20px 0 18px;
+  max-width: 10ch;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(52px, 8vw, 86px);
+  line-height: 0.92;
+  font-weight: 600;
+}
+
+.description {
+  max-width: 66ch;
+  font-size: 17px;
+  line-height: 1.8;
+  color: #dccdea;
+}
+
+.heroPanel {
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+}
+
+.heroPanel > div {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.heroPanel > div:last-child {
+  border-bottom: none;
+}
+
+.heroPanel span,
+.heroPanel strong {
+  display: block;
+}
+
+.heroPanel strong {
+  margin-top: 10px;
+  font-size: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin: 48px 0 24px;
+}
+
+.sectionHeader h2 {
+  margin: 10px 0 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 44px;
+}
+
+.sectionText {
+  max-width: 46ch;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  min-height: 360px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardGlow {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.cardTop,
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.cardBody {
+  position: relative;
+  z-index: 1;
+}
+
+.cardBody h3 {
+  margin: 18px 0 10px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 42px;
+  font-weight: 600;
+}
+
+.cardBody p {
+  margin: 0;
+}
+
+.cardBody > p:first-of-type {
+  color: #f5d7ff;
+  font-size: 16px;
+}
+
+.cardDescription {
+  margin-top: 14px !important;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.tags span {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #f1defa;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+}
+
+.footer {
+  align-items: end;
+}
+
+.footer strong {
+  font-size: 15px;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 28px 18px 56px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCopy {
+    padding: 30px 24px;
+  }
+
+  .heroCopy h1 {
+    max-width: none;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: start;
+  }
+}
