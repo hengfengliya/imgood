@@ -1,0 +1,71 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 12, 9, 0.92);
+  backdrop-filter: blur(12px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.panel {
+  width: min(440px, 100%);
+  background: linear-gradient(180deg, #0c1612 0%, #060c09 100%);
+  border: 1px solid rgba(93, 186, 140, 0.3);
+  border-radius: 16px;
+  padding: 28px 26px 22px;
+  box-shadow: 0 24px 80px -16px rgba(0, 0, 0, 0.7);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(220, 230, 225, 0.95);
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+.body {
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(220, 230, 225, 0.7);
+  margin: 0 0 22px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.leave,
+.accept {
+  appearance: none;
+  border: 1px solid rgba(220, 230, 225, 0.2);
+  background: transparent;
+  color: rgba(220, 230, 225, 0.7);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.leave:hover {
+  border-color: rgba(220, 230, 225, 0.4);
+  color: rgba(220, 230, 225, 0.95);
+}
+
+.accept {
+  background: #5dba8c;
+  border-color: #5dba8c;
+  color: #060c09;
+  font-weight: 600;
+}
+
+.accept:hover {
+  filter: brightness(1.08);
+}

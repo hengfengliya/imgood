@@ -421,3 +421,40 @@
     font-size: 10px;
   }
 }
+
+/* ── controls (NSFW toggle + LanguageToggle) ── */
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nsfwToggle {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(220, 230, 225, 0.2);
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: rgba(220, 230, 225, 0.75);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.nsfwToggle:hover {
+  border-color: #5dba8c;
+  color: #5dba8c;
+}
+
+.nsfwToggleOff {
+  background: rgba(255, 159, 67, 0.15);
+  border-color: rgba(255, 159, 67, 0.4);
+  color: rgba(255, 200, 130, 0.95);
+}
+
+.nsfwToggleOff:hover {
+  border-color: rgba(255, 200, 130, 0.7);
+  color: rgba(255, 220, 150, 1);
+}

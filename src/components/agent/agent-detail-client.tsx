@@ -1,17 +1,63 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { AgentDetail } from "@/types/agent";
+import type { AgentDetail, Language } from "@/types/agent";
+import { LanguageToggle } from "@/components/common/language-toggle";
+import { TryItChat } from "@/components/agent/try-it-chat";
 import styles from "./agent-detail.module.css";
 
 type Props = {
   agent: AgentDetail;
+  lang: Language;
 };
 
-export function AgentDetailClient({ agent }: Props) {
+const T = {
+  zh: {
+    files: "files",
+    download: "下载完整 Agent 包",
+    workspaceFiles: "Workspace Files",
+    official: "Official file",
+    extra: "Extra file",
+    agentDir: "Agent 目录",
+    rootDir: "仓库根目录映射",
+    notFound: "未找到",
+    downloadFile: "下载此文件",
+    emptyTitle: "该文件尚未创建",
+    emptyHint: "当前 Agent 还没有这个官方文档。",
+    tryIt: "试看效果",
+    fallbackNotice: "（该文件无英文版，已 fallback 到中文）",
+  },
+  en: {
+    files: "files",
+    download: "Download full agent pack",
+    workspaceFiles: "Workspace Files",
+    official: "Official file",
+    extra: "Extra file",
+    agentDir: "Agent directory",
+    rootDir: "Repo root mapping",
+    notFound: "Not found",
+    downloadFile: "Download this file",
+    emptyTitle: "Not created yet",
+    emptyHint: "This official document hasn't been written for this agent.",
+    tryIt: "Try it now",
+    fallbackNotice: "(No English version, falling back to Chinese)",
+  },
+} as const;
+
+export function AgentDetailClient({ agent, lang }: Props) {
+  const t = T[lang];
   const availableDocuments = useMemo(() => agent.documents.filter((d) => d.exists), [agent.documents]);
   const [selectedFile, setSelectedFile] = useState(availableDocuments[0]?.fileName ?? agent.documents[0]?.fileName ?? "");
+  const [showChat, setShowChat] = useState(false);
   const currentDocument = agent.documents.find((d) => d.fileName === selectedFile) ?? agent.documents[0];
+
+  const downloadHref = `/api/agents/${agent.slug}/download${lang === "en" ? "?lang=en" : ""}`;
+  const fileDownloadHref = currentDocument?.exists
+    ? `/api/agents/${agent.slug}/files/${encodeURIComponent(currentDocument.fileName)}${lang === "en" ? "?lang=en" : ""}`
+    : "#";
+
+  // 在 en 模式下，若当前文档实际语言不是 en（fallback 到 zh），显示提示
+  const showFallbackNotice = lang === "en" && currentDocument?.exists && currentDocument.language !== "en";
 
   return (
     <div className={styles.layout}>
@@ -23,7 +69,10 @@ export function AgentDetailClient({ agent }: Props) {
       >
         <div className={styles.agentHeaderGlow} />
         <div className={styles.agentHeaderLeft}>
-          <span className={styles.categoryBadge}>{agent.category}</span>
+          <div className={styles.headerTopRow}>
+            <span className={styles.categoryBadge}>{agent.category}</span>
+            <LanguageToggle current={lang} />
+          </div>
           <h1 className={styles.agentName}>{agent.title}</h1>
           <p className={styles.agentSubtitle}>{agent.subtitle}</p>
           <p className={styles.agentDesc}>{agent.description}</p>
@@ -37,13 +86,17 @@ export function AgentDetailClient({ agent }: Props) {
           <div className={styles.completeness}>
             <span className={styles.completenessNum}>{availableDocuments.length}</span>
             <span className={styles.completenessTotal}>/{agent.documents.length}</span>
-            <span className={styles.completenessLabel}>files</span>
+            <span className={styles.completenessLabel}>{t.files}</span>
           </div>
-          <a
-            href={`/api/agents/${agent.slug}/download`}
-            className={styles.downloadBtn}
+          <button
+            type="button"
+            className={styles.tryItBtn}
+            onClick={() => setShowChat(true)}
           >
-            下载完整 Agent 包
+            {t.tryIt}
+          </button>
+          <a href={downloadHref} className={styles.downloadBtn}>
+            {t.download}
           </a>
         </div>
       </header>
@@ -53,7 +106,7 @@ export function AgentDetailClient({ agent }: Props) {
 
         {/* File nav */}
         <nav className={styles.fileNav}>
-          <p className={styles.fileNavLabel}>Workspace Files</p>
+          <p className={styles.fileNavLabel}>{t.workspaceFiles}</p>
           {agent.documents.map((doc) => (
             <button
               key={doc.fileName}
@@ -73,17 +126,26 @@ export function AgentDetailClient({ agent }: Props) {
             <div>
               <h2 className={styles.previewTitle}>{currentDocument?.fileName ?? "—"}</h2>
               <div className={styles.previewMeta}>
-                <span>{currentDocument?.isOfficial ? "Official file" : "Extra file"}</span>
+                <span>{currentDocument?.isOfficial ? t.official : t.extra}</span>
                 <span className={styles.metaSep}>·</span>
-                <span>{currentDocument?.sourceType === "agent" ? "Agent 目录" : currentDocument?.sourceType === "root" ? "仓库根目录映射" : "未找到"}</span>
+                <span>
+                  {currentDocument?.sourceType === "agent"
+                    ? t.agentDir
+                    : currentDocument?.sourceType === "root"
+                      ? t.rootDir
+                      : t.notFound}
+                </span>
+                {showFallbackNotice && (
+                  <>
+                    <span className={styles.metaSep}>·</span>
+                    <span className={styles.fallbackNotice}>{t.fallbackNotice}</span>
+                  </>
+                )}
               </div>
             </div>
             {currentDocument?.exists && (
-              <a
-                href={`/api/agents/${agent.slug}/files/${encodeURIComponent(currentDocument.fileName)}`}
-                className={styles.fileDownloadBtn}
-              >
-                下载此文件
+              <a href={fileDownloadHref} className={styles.fileDownloadBtn}>
+                {t.downloadFile}
               </a>
             )}
           </div>
@@ -92,13 +154,17 @@ export function AgentDetailClient({ agent }: Props) {
             <pre className={styles.code}>{currentDocument.content}</pre>
           ) : (
             <div className={styles.emptyState}>
-              <p>该文件尚未创建</p>
-              <span>当前 Agent 还没有这个官方文档。</span>
+              <p>{t.emptyTitle}</p>
+              <span>{t.emptyHint}</span>
             </div>
           )}
         </article>
 
       </div>
+
+      {showChat && (
+        <TryItChat agent={agent} lang={lang} onClose={() => setShowChat(false)} />
+      )}
     </div>
   );
 }

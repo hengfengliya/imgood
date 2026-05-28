@@ -1,14 +1,22 @@
 import JSZip from "jszip";
 import { NextResponse } from "next/server";
 import { getDownloadableFiles } from "@/lib/agents";
+import { DEFAULT_LANGUAGE, type Language } from "@/types/agent";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function GET(_: Request, { params }: Props) {
+function parseLang(raw: string | null): Language {
+  return raw === "en" ? "en" : DEFAULT_LANGUAGE;
+}
+
+export async function GET(req: Request, { params }: Props) {
   const { slug } = await params;
-  const files = await getDownloadableFiles(slug);
+  const url = new URL(req.url);
+  const lang = parseLang(url.searchParams.get("lang"));
+
+  const files = await getDownloadableFiles(slug, lang);
 
   if (!files) {
     return NextResponse.json({ message: "Agent not found" }, { status: 404 });
@@ -22,11 +30,12 @@ export async function GET(_: Request, { params }: Props) {
   });
 
   const arrayBuffer = await zip.generateAsync({ type: "arraybuffer" });
+  const zipName = lang === "en" ? `${slug}-en.zip` : `${slug}.zip`;
 
   return new Response(arrayBuffer, {
     headers: {
       "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="${slug}.zip"`,
+      "Content-Disposition": `attachment; filename="${zipName}"`,
     },
   });
 }

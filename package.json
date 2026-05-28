@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "validate": "node scripts/validate-agents.mjs"
   },
   "dependencies": {
     "jszip": "^3.10.1",

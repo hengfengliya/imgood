@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { OFFICIAL_WORKSPACE_FILES } from "@/types/agent";
+import { useMemo, useState } from "react";
+import { OFFICIAL_WORKSPACE_FILES, type Language, type NsfwLevel } from "@/types/agent";
+import { LanguageToggle } from "@/components/common/language-toggle";
+import { AgeGate } from "@/components/common/age-gate";
 import styles from "./home-tabs.module.css";
 
 type AgentDocument = {
@@ -22,23 +23,52 @@ type Agent = {
   completedCount: number;
   totalCount: number;
   documents: AgentDocument[];
+  nsfw_level?: NsfwLevel;
 };
 
 type Props = {
   agents: Agent[];
+  lang: Language;
 };
 
-const DOC_DESCRIPTIONS: Record<string, string> = {
-  "AGENTS.md": "运行规则、工作方式与上下文调用约定。",
-  "IDENTITY.md": "身份设定、命名方式与外显角色气质。",
-  "USER.md": "目标用户、服务对象与称呼方式。",
-  "SOUL.md": "核心人格、语气风格和长期行为边界。",
-  "TOOLS.md": "工具清单、技能约定与工作流描述。",
-  "MEMORY.md": "长期稳定记忆与关键偏好存储。",
-  "HEARTBEAT.md": "定时巡检或周期性心跳检查清单。",
-  "BOOT.md": "每次启动时执行的初始化检查步骤。",
-  "BOOTSTRAP.md": "首次初始化的一次性引导内容。",
-};
+const T = {
+  zh: {
+    all: "全部",
+    enterDetail: "进入详情 →",
+    viewFull: "查看完整内容 →",
+    showNsfw: "显示 NSFW",
+    hideNsfw: "隐藏 NSFW",
+    docDesc: {
+      "AGENTS.md": "运行规则、工作方式与上下文调用约定。",
+      "IDENTITY.md": "身份设定、命名方式与外显角色气质。",
+      "USER.md": "目标用户、服务对象与称呼方式。",
+      "SOUL.md": "核心人格、语气风格和长期行为边界。",
+      "TOOLS.md": "工具清单、技能约定与工作流描述。",
+      "MEMORY.md": "长期稳定记忆与关键偏好存储。",
+      "HEARTBEAT.md": "定时巡检或周期性心跳检查清单。",
+      "BOOT.md": "每次启动时执行的初始化检查步骤。",
+      "BOOTSTRAP.md": "首次初始化的一次性引导内容。",
+    } as Record<string, string>,
+  },
+  en: {
+    all: "All",
+    enterDetail: "Open detail →",
+    viewFull: "View full content →",
+    showNsfw: "Show NSFW",
+    hideNsfw: "Hide NSFW",
+    docDesc: {
+      "AGENTS.md": "Runtime rules, working style, and context usage.",
+      "IDENTITY.md": "Identity, naming, and outward persona traits.",
+      "USER.md": "Target user, audience, and addressing style.",
+      "SOUL.md": "Core personality, tone, and long-term behavior boundaries.",
+      "TOOLS.md": "Tool inventory, skill conventions, workflow notes.",
+      "MEMORY.md": "Long-term memory and key preferences.",
+      "HEARTBEAT.md": "Periodic check-in / heartbeat checklist.",
+      "BOOT.md": "Initialization checks run at every boot.",
+      "BOOTSTRAP.md": "One-time first-time setup guide.",
+    } as Record<string, string>,
+  },
+} as const;
 
 function stripMarkdown(text: string): string {
   return text
@@ -55,26 +85,40 @@ function stripMarkdown(text: string): string {
     .trim();
 }
 
-export default function HomeTabs({ agents }: Props) {
+function detailHref(slug: string, lang: Language) {
+  return lang === "en" ? `/agents/${slug}?lang=en` : `/agents/${slug}`;
+}
+
+export default function HomeTabs({ agents, lang }: Props) {
+  const t = T[lang];
   const [activeTab, setActiveTab] = useState("agents");
+  const [hideNsfw, setHideNsfw] = useState(false);
+
+  // 隐藏 NSFW 时只保留显式标记为 sfw 的角色（未标记一律按非 sfw 处理）
+  const filteredAgents = useMemo(
+    () => (hideNsfw ? agents.filter((a) => a.nsfw_level === "sfw") : agents),
+    [agents, hideNsfw],
+  );
 
   const docTabs = OFFICIAL_WORKSPACE_FILES.map((fileName) => {
     const key = "doc_" + fileName.replace(/\.md$/i, "").toLowerCase();
     const label = fileName.replace(/\.md$/i, "");
-    const present = agents.filter((a) =>
+    const present = filteredAgents.filter((a) =>
       a.documents.some((d) => d.fileName === fileName && d.exists)
     );
     return { key, label, fileName, agents: present };
-  }).filter((t) => t.agents.length > 0);
+  }).filter((tab) => tab.agents.length > 0);
 
   const tabs = [
-    { key: "agents", label: "All", count: agents.length },
-    ...docTabs.map((t) => ({ key: t.key, label: t.label, count: t.agents.length })),
+    { key: "agents", label: t.all, count: filteredAgents.length },
+    ...docTabs.map((tab) => ({ key: tab.key, label: tab.label, count: tab.agents.length })),
   ];
 
   return (
     <div className={styles.root}>
-      {/* Tab bar */}
+      <AgeGate lang={lang} />
+
+      {/* Tab bar + controls */}
       <nav className={styles.tabBar}>
         <div className={styles.tabList}>
           {tabs.map((tab) => (
@@ -88,15 +132,27 @@ export default function HomeTabs({ agents }: Props) {
             </button>
           ))}
         </div>
+
+        <div className={styles.controls}>
+          <button
+            type="button"
+            className={`${styles.nsfwToggle} ${hideNsfw ? styles.nsfwToggleOff : ""}`}
+            onClick={() => setHideNsfw((v) => !v)}
+            aria-pressed={!hideNsfw}
+          >
+            {hideNsfw ? t.showNsfw : t.hideNsfw}
+          </button>
+          <LanguageToggle current={lang} />
+        </div>
       </nav>
 
       {/* Agent tab */}
       {activeTab === "agents" && (
         <div className={styles.grid}>
-          {agents.map((agent) => (
-            <Link
+          {filteredAgents.map((agent) => (
+            <a
               key={agent.slug}
-              href={`/agents/${agent.slug}`}
+              href={detailHref(agent.slug, lang)}
               className={styles.agentCard}
             >
               <div
@@ -136,10 +192,10 @@ export default function HomeTabs({ agents }: Props) {
                       </span>
                     ))}
                   </div>
-                  <span className={styles.cta}>进入详情 →</span>
+                  <span className={styles.cta}>{t.enterDetail}</span>
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       )}
@@ -149,7 +205,7 @@ export default function HomeTabs({ agents }: Props) {
         (tab) =>
           activeTab === tab.key && (
             <div key={tab.key}>
-              <p className={styles.docTabDesc}>{DOC_DESCRIPTIONS[tab.fileName]}</p>
+              <p className={styles.docTabDesc}>{t.docDesc[tab.fileName]}</p>
               <div className={styles.docGrid}>
                 {tab.agents.map((agent) => {
                   const doc = agent.documents.find(
@@ -159,9 +215,9 @@ export default function HomeTabs({ agents }: Props) {
                   const preview = stripMarkdown(raw).slice(0, 240);
 
                   return (
-                    <Link
+                    <a
                       key={agent.slug}
-                      href={`/agents/${agent.slug}`}
+                      href={detailHref(agent.slug, lang)}
                       className={styles.docCard}
                       style={{ "--agent-accent": agent.accent } as React.CSSProperties}
                     >
@@ -171,8 +227,8 @@ export default function HomeTabs({ agents }: Props) {
                         <span className={styles.docBadge}>{tab.label}</span>
                       </div>
                       <p className={styles.docPreview}>{preview}</p>
-                      <span className={styles.docCta}>查看完整内容 →</span>
-                    </Link>
+                      <span className={styles.docCta}>{t.viewFull}</span>
+                    </a>
                   );
                 })}
               </div>

@@ -1,3 +1,62 @@
+# 2026-05-28
+
+## 🚀 Phase A 工程化补齐 + Phase B 试看 UI 占位 + 双语 i18n + NSFW 年龄门 + CI
+
+> 11:30 | Context: office-hours 战略路线 A→C→B；本次完成 A 全部 + B 的 UI 占位。约束：所有文档双语（zh + en），但 21 个 NSFW SOUL/IDENTITY/USER 的英文翻译保留给人工。
+
+### A1 - 6 角色 × 6 文件框架补齐（42 zh-md）
+- 按 Lilithara 模板批量为 Aeloria / Seraphine / velmoria / Elowen / zelphira / malvyra 生成：
+  - `AGENTS.md` / `BOOT.md` / `BOOTSTRAP.md` / `HEARTBEAT.md` / `TOOLS.md`（5 个框架 stub × 6 角色 = 30）
+  - `MEMORY.md`（6 角色，按各 SOUL kink 风格定制 2-3 条 seed memory + 渐进追踪规则）
+- 详情页 "Missing" 标签全部消失。
+
+### A3 - EN 双语版本（45 en-md，18 待人工）
+- ✅ 全部 7 角色 × 6 框架文件 = 42 个 `*.en.md`（AGENTS / BOOT / BOOTSTRAP / HEARTBEAT / MEMORY / TOOLS）
+- ✅ lilithara SOUL/IDENTITY/USER `.en.md`（原本就是英文，等同复制；`primary_language: en`）
+- ⏸️ 6 角色 × SOUL/IDENTITY/USER = 18 个 `.en.md` 暂未生成 — 这些是 explicit NSFW 角色脚本，请人工翻译或在独立 session 处理
+- 缺失行为：前端按 i18n fallback 契约自动加载 zh 原版并在文件 meta 处提示「(该文件无英文版，已 fallback 到中文)」
+
+### A4 - 前端 i18n + 语言 toggle
+- `src/types/agent.ts`：新增 `Language`/`NsfwLevel`/`SUPPORTED_LANGUAGES`/`DEFAULT_LANGUAGE` 导出；`AgentMeta` 加 `primary_language?` + `nsfw_level?`；`AgentDocument` 加 `language` 字段表实际加载语言
+- `src/lib/agents.ts`：所有读函数加 `lang: Language = "zh"` 参数；`readDocument` 在 en 模式优先 `<FILE>.en.md`，缺则回落 zh 原文件并标记 `language: "zh"`
+- `src/app/page.tsx` / `src/app/agents/[slug]/page.tsx`：accept `searchParams.lang`，传给数据层；返回链接根据 lang 自动加 `?lang=en`
+- `src/components/common/language-toggle.tsx`：新增「中文 / EN」圆角胶囊切换器（用原生 `<a>` 走整页刷新，规避 Next 16 typed-routes 对 query 拼接不友好）
+- `src/components/agent/agent-detail-client.tsx`：完整双语化；header 加 LanguageToggle；fallback 提示样式
+- `src/components/home/home-tabs.tsx`：完整双语化；列表卡片 / 文档卡片改用 `<a>` 携带 lang query
+
+### A5 - meta.json nsfw_level + primary_language + 站内年龄门 + NSFW 过滤
+- 7 个 meta.json 全部新增 `nsfw_level`（lilithara/Aeloria/velmoria/zelphira/malvyra=`explicit`；Seraphine/Elowen=`soft`）+ `primary_language`（lilithara=`en`，其余=`zh`）
+- `src/components/common/age-gate.tsx`：首次访问 modal 年龄确认（localStorage `imgood-age-confirmed-v1` 持久化），未满 18 跳转 google
+- HomeTabs 新增「显示/隐藏 NSFW」toggle（隐藏时只保留 `nsfw_level === "sfw"` 角色，目前 0 个）
+
+### B - 站内"试看效果"聊天 UI 占位（不接真 API）
+- `src/components/agent/try-it-chat.tsx`：详情页 header 按钮 → 全屏 overlay 模态聊天（消息流 / 系统消息 / 用户消息 / assistant 消息 / 输入框 / 加载态 / NSFW banner）；按 ESC 关闭
+- `src/app/api/agents/[slug]/chat/route.ts`：POST 占位 — 返回 503 + 「试看功能即将上线，请下载 md 接入 OpenClaw」提示；接 grok2api 时只换函数体即可
+- nsfw_level 为 explicit/soft 时聊天面板顶部显示成人内容警告
+
+### A6 - 校验脚本 + GitHub Actions
+- `scripts/validate-agents.mjs`：node 原生（无新依赖）；校验每个角色有 meta.json + SOUL/IDENTITY/USER + meta 必填字段 + nsfw_level/primary_language 取值合法；任何 fail 退出 1
+- `package.json` 加 `"validate": "node scripts/validate-agents.mjs"` script
+- `.github/workflows/validate.yml`：push/PR 到 main 时跑 validate + `tsc --noEmit`
+
+### API 改造
+- `/api/agents/[slug]/download?lang=en`：按语言打 zip，zip 文件名 `<slug>-en.zip`
+- `/api/agents/[slug]/files/[fileName]?lang=en`：按语言提供单文件下载，EN 文件下载名加 `.en` 后缀
+- `/api/agents/[slug]/chat`：新增（POST），占位
+
+### 验证
+- 本地 `node scripts/validate-agents.mjs`：7/7 ✓
+- 本地 `npm run build`：✓ Compiled successfully + TypeScript check 通过
+- 路由 prerender：3 个静态 + 5 个动态
+
+### 待办（设计文档已记载，下次启动）
+- 18 个 explicit NSFW SOUL/IDENTITY/USER 英文翻译（6 角色 × 3）
+- The Assignment：找 5 个 linux.do OP 帖回应用户私信问「接 OpenClaw 跑通了吗？卡在哪？」
+- C 阶段（一键安装 npx imgood install）：等 The Assignment 反馈 + OpenClaw 稳定 1 个月再启
+- B 阶段接真 grok2api：用户决定专用 key 时再上
+
+---
+
 # 2026-03-15
 
 ## ✨ 搭建 OpenClaw Agent 展示与下载前端

@@ -1,0 +1,36 @@
+.root {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid rgba(93, 186, 140, 0.3);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(6, 12, 9, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(220, 230, 225, 0.7);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  color: #5dba8c;
+}
+
+.active {
+  background: #5dba8c;
+  color: #060c09;
+  font-weight: 600;
+}
+
+.active:hover {
+  color: #060c09;
+}

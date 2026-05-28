@@ -1,6 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { OFFICIAL_WORKSPACE_FILES, type AgentDetail, type AgentDocument, type AgentMeta } from "@/types/agent";
+import {
+  DEFAULT_LANGUAGE,
+  OFFICIAL_WORKSPACE_FILES,
+  type AgentDetail,
+  type AgentDocument,
+  type AgentMeta,
+  type Language,
+} from "@/types/agent";
 
 const ROOT_DIR = process.cwd();
 const AGENTS_DIR = path.join(ROOT_DIR, "workspace", "agents");
@@ -43,62 +50,92 @@ function inferTitle(fileName: string) {
   return fileName.replace(/\.md$/i, "");
 }
 
+/** zh 用原文件名，en 用 SOUL.en.md 等 */
+function localizedFileName(fileName: string, lang: Language): string {
+  if (lang === "zh") return fileName;
+  return fileName.replace(/\.md$/i, ".en.md");
+}
+
 async function readMeta(agentDir: string) {
   const metaPath = path.join(agentDir, "meta.json");
   const raw = await fs.readFile(metaPath, "utf8");
   return JSON.parse(raw) as AgentMeta;
 }
 
-async function readDocument(agentDir: string, fileName: string): Promise<AgentDocument> {
-  const agentPath = path.join(agentDir, fileName);
-  const rootPath = path.join(ROOT_DIR, fileName);
-
-  if (await fileExists(agentPath)) {
-    return {
-      fileName,
-      title: inferTitle(fileName),
-      summary: inferSummary(fileName),
-      isOfficial: OFFICIAL_WORKSPACE_FILES.includes(fileName as never),
-      exists: true,
-      sourcePath: agentPath,
-      sourceType: "agent",
-      content: await fs.readFile(agentPath, "utf8"),
-    };
-  }
-
-  if (await fileExists(rootPath)) {
-    return {
-      fileName,
-      title: inferTitle(fileName),
-      summary: inferSummary(fileName),
-      isOfficial: OFFICIAL_WORKSPACE_FILES.includes(fileName as never),
-      exists: true,
-      sourcePath: rootPath,
-      sourceType: "root",
-      content: await fs.readFile(rootPath, "utf8"),
-    };
-  }
-
-  return {
+/**
+ * 按语言读取文档。
+ * en 优先 .en.md，缺则 fallback 到原 zh 文件（语言标 zh，UI 可提示）。
+ */
+async function readDocument(
+  agentDir: string,
+  fileName: string,
+  lang: Language,
+): Promise<AgentDocument> {
+  const baseDoc = {
     fileName,
     title: inferTitle(fileName),
     summary: inferSummary(fileName),
     isOfficial: OFFICIAL_WORKSPACE_FILES.includes(fileName as never),
+  };
+
+  if (lang === "en") {
+    const enPath = path.join(agentDir, localizedFileName(fileName, "en"));
+    if (await fileExists(enPath)) {
+      return {
+        ...baseDoc,
+        exists: true,
+        sourcePath: enPath,
+        sourceType: "agent",
+        content: await fs.readFile(enPath, "utf8"),
+        language: "en",
+      };
+    }
+  }
+
+  const agentPath = path.join(agentDir, fileName);
+  if (await fileExists(agentPath)) {
+    return {
+      ...baseDoc,
+      exists: true,
+      sourcePath: agentPath,
+      sourceType: "agent",
+      content: await fs.readFile(agentPath, "utf8"),
+      language: "zh",
+    };
+  }
+
+  const rootPath = path.join(ROOT_DIR, fileName);
+  if (await fileExists(rootPath)) {
+    return {
+      ...baseDoc,
+      exists: true,
+      sourcePath: rootPath,
+      sourceType: "root",
+      content: await fs.readFile(rootPath, "utf8"),
+      language: "zh",
+    };
+  }
+
+  return {
+    ...baseDoc,
     exists: false,
     sourcePath: null,
     sourceType: "missing",
     content: null,
+    language: lang,
   };
 }
 
-export async function getAgentsWithDocuments() {
+export async function getAgentsWithDocuments(lang: Language = DEFAULT_LANGUAGE) {
   const dirs = await listDirectories(AGENTS_DIR);
 
   const agents = await Promise.all(
     dirs.map(async (dir) => {
       const agentDir = path.join(AGENTS_DIR, dir);
       const meta = await readMeta(agentDir);
-      const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
+      const documents = await Promise.all(
+        OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file, lang)),
+      );
       const completedCount = documents.filter((d) => d.exists).length;
 
       return {
@@ -114,19 +151,21 @@ export async function getAgentsWithDocuments() {
   return agents.sort((a, b) => {
     const da = a.updatedAt ?? "";
     const db = b.updatedAt ?? "";
-    if (db !== da) return db.localeCompare(da); // 最新在前
-    return a.title.localeCompare(b.title);       // 同日期按标题字母序
+    if (db !== da) return db.localeCompare(da);
+    return a.title.localeCompare(b.title);
   });
 }
 
-export async function getAgents() {
+export async function getAgents(lang: Language = DEFAULT_LANGUAGE) {
   const dirs = await listDirectories(AGENTS_DIR);
 
   const agents = await Promise.all(
     dirs.map(async (dir) => {
       const agentDir = path.join(AGENTS_DIR, dir);
       const meta = await readMeta(agentDir);
-      const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
+      const documents = await Promise.all(
+        OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file, lang)),
+      );
       const completedCount = documents.filter((item) => item.exists).length;
 
       return {
@@ -141,20 +180,24 @@ export async function getAgents() {
   return agents.sort((a, b) => {
     const da = a.updatedAt ?? "";
     const db = b.updatedAt ?? "";
-    if (db !== da) return db.localeCompare(da); // 最新在前
-    return a.title.localeCompare(b.title);       // 同日期按标题字母序
+    if (db !== da) return db.localeCompare(da);
+    return a.title.localeCompare(b.title);
   });
 }
 
-export async function getAgentBySlug(slug: string): Promise<AgentDetail | null> {
-  // Case-insensitive directory lookup so "Elowen" folder works for /agents/elowen
+export async function getAgentBySlug(
+  slug: string,
+  lang: Language = DEFAULT_LANGUAGE,
+): Promise<AgentDetail | null> {
   const dirs = await listDirectories(AGENTS_DIR);
   const matchedDir = dirs.find((d) => d.toLowerCase() === slug.toLowerCase());
   if (!matchedDir) return null;
 
   const agentDir = path.join(AGENTS_DIR, matchedDir);
   const meta = await readMeta(agentDir);
-  const documents = await Promise.all(OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file)));
+  const documents = await Promise.all(
+    OFFICIAL_WORKSPACE_FILES.map((file) => readDocument(agentDir, file, lang)),
+  );
 
   return {
     ...meta,
@@ -163,8 +206,8 @@ export async function getAgentBySlug(slug: string): Promise<AgentDetail | null> 
   };
 }
 
-export async function getDownloadableFiles(slug: string) {
-  const agent = await getAgentBySlug(slug);
+export async function getDownloadableFiles(slug: string, lang: Language = DEFAULT_LANGUAGE) {
+  const agent = await getAgentBySlug(slug, lang);
   if (!agent) {
     return null;
   }
